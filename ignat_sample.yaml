@@ -1,0 +1,3 @@
+token: get-your-own
+port: 8086
+hook_base: 'https://example.org'
