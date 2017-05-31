@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"math/rand"
 	"net/http"
+	"net/url"
 	"regexp"
 	"strings"
 
@@ -73,10 +74,18 @@ func (bot *IgnatBot) ProcessUpdate(body []byte) {
 		}
 
 		text := update.Message.Text
-		if matched, _ := regexp.MatchString(".*[Дд]а$", text); matched {
-			/*bot.ApiPost("sendMessage", map[string]interface{}{
-			"chat_id": update.Message.Chat.Id,
-			"text":    "Пизда!"})*/
+		last_words := regexp.MustCompile(`(\p{Cyrillic}+\s+\p{Cyrillic}+)[-.!:() ]*$`)
+		if m := last_words.FindStringSubmatch(text); m != nil {
+			url := fmt.Sprintf("https://miga.me.uk/mark?len=20&feed=%v", url.PathEscape(m[1]))
+			resp, err := http.Get(url)
+			if err != nil || resp.StatusCode != 200 {
+				return
+			}
+			defer resp.Body.Close()
+			body, _ := ioutil.ReadAll(resp.Body)
+			bot.ApiPost("sendMessage", map[string]interface{}{
+				"chat_id": update.Message.Chat.Id,
+				"text":    string(body)})
 		}
 	}
 }
