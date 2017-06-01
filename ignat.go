@@ -83,9 +83,11 @@ func (bot *IgnatBot) ProcessUpdate(body []byte) {
 			}
 			defer resp.Body.Close()
 			body, _ := ioutil.ReadAll(resp.Body)
-			bot.ApiPost("sendMessage", map[string]interface{}{
-				"chat_id": update.Message.Chat.Id,
-				"text":    string(body)})
+			if rand.Intn(100) < 30 {
+				bot.ApiPost("sendMessage", map[string]interface{}{
+					"chat_id": update.Message.Chat.Id,
+					"text":    string(body)})
+			}
 		}
 	}
 }
